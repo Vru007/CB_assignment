@@ -7,7 +7,9 @@ import AddCandidateModal from '@/components/AddCandidate';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast"
 import axios from 'axios';
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
+console.log("api_url: ",API_URL);
 
 export default function Home() {
   // Initialize candidates as an empty array, not undefined
