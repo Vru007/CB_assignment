@@ -3,7 +3,8 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const FilterBar = ({ filters, onFilterChange }) => {
- const statusOptions = ['All', 'Pending', 'In Progress', 'Completed', 'Interviewed'];
+ const statusOptions = ['All', 'Pending','Interviewed','Accepted','Rejected'];
+ 
  const positionOptions = ['All', 'Frontend Developer', 'Backend Developer', 'UX Designer', 'Product Manager'];
 
  return (
