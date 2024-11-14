@@ -20,6 +20,9 @@ app.use('/api/candidates', candidateRoutes);
 // Error handling
 app.use(errorHandler);
 
+app.get('/', (req, res) => {
+    res.status(200).send("Hello World!");
+});
 // Start server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
