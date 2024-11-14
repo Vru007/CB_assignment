@@ -1,0 +1,55 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+
+  build-and-deploy-frontend:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v2
+    
+    - name: Install Dependencies
+      run: cd frontend && npm ci
+      
+    - name: Build
+      run: cd frontend && npm run build
+      
+    - name: Deploy to Vercel
+      uses: webfactory/ssh-agent@v0.5.0
+      with:
+        ssh-private-key: ${{ secrets.VERCEL_SSH_PRIVATE_KEY }}
+      env:
+        VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      run: |
+        cd frontend
+        npx vercel --token $VERCEL_TOKEN --prod
+        
+  build-and-deploy-backend:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v2
+    
+    - name: Install Dependencies  
+      run: cd backend && npm ci
+      
+    - name: Build
+      run: cd backend && npm run build
+      
+    - name: Deploy to Render
+      env:
+        RENDER_SERVICE_ID: ${{ secrets.RENDER_SERVICE_ID }}
+        RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+      run: |
+        curl -X POST https://api.render.com/v1/services/$RENDER_SERVICE_ID/deploys \
+          -H "Authorization: Bearer $RENDER_API_KEY" \
+          -H "Content-Type: application/json" \
+          --data '{"branch":"main"}'
+
+
+##Because of the paid service i have just written the code and not added the SERVICE_KEY 
+## Also I have hosted my site on Vercel and Render which will automatically deploy on changing the code based on the last commit
