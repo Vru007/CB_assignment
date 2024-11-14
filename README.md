@@ -10,12 +10,11 @@ This project is a candidate assessment tracking system built using Next.js for t
 **Features:**
 
 **Add new candidates.**
-**Update assessment statuses** (Pending, In Progress, Completed).
+**Update assessment statuses** (Pending, accepted, rejected, interviewed(added this state for future purpose)).
 **Filter and sort by name, status, or date.**
-
+**Also added a filtering based on the position the candidate applied for**
 
 Responsive Design: Mobile and desktop compatibility.
-
 
 UI Components:
 
