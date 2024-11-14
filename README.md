@@ -1,7 +1,6 @@
-README
 **Project Overview**
 This project is a candidate assessment tracking system built using Next.js for the frontend and Node.js/Express.js for the backend. The system allows you to manage the assessment process for job candidates, including adding new candidates, updating their assessment statuses, and filtering/sorting the candidate list.
-Features
+
 
 **Frontend:**
 
