@@ -42,15 +42,15 @@ Update a candidate's status.
 
 **Frontend:**
 
-Clone the repository: git clone https://github.com/your-username/candidate-assessment-system.git
-Navigate to the frontend directory: cd candidate-assessment-system/frontend
+Clone the repository: git clone https://github.com/Vru007/CB_assignment/tree/main
+Navigate to the frontend directory: cd frontend
 Install dependencies: npm install
 Start the development server: npm run dev
 Open the application in your browser: http://localhost:3000
 
 Backend:
 
-Navigate to the backend directory: cd candidate-assessment-system/backend
+Navigate to the backend directory: cd backend
 Install dependencies: npm install
 Set up the database connection in the .env file
 Start the server: npm start
