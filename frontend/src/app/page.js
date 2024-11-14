@@ -6,83 +6,58 @@ import FilterBar from '@/components/FilterBar';
 import AddCandidateModal from '@/components/AddCandidate';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast"
-
-// Dummy data
-const dummyCandidates = [
-  {
-    id: 1,
-    name: "John Smith",
-    email: "john.smith@example.com",
-    phone: "+1 (555) 123-4567",
-    status: "pending",
-    position: "Frontend Developer",
-    experience: "5 years",
-    appliedDate: "2024-03-15"
-  },
-  {
-    id: 2,
-    name: "Sarah Johnson",
-    email: "sarah.j@example.com",
-    phone: "+1 (555) 234-5678",
-    status: "interviewed",
-    position: "UX Designer",
-    experience: "3 years",
-    appliedDate: "2024-03-14"
-  },
-  {
-    id: 3,
-    name: "Michael Chen",
-    email: "m.chen@example.com",
-    phone: "+1 (555) 345-6789",
-    status: "accepted",
-    position: "Backend Developer",
-    experience: "7 years",
-    appliedDate: "2024-03-13"
-  },
-  {
-    id: 4,
-    name: "Emma Wilson",
-    email: "emma.w@example.com",
-    phone: "+1 (555) 456-7890",
-    status: "rejected",
-    position: "Product Manager",
-    experience: "4 years",
-    appliedDate: "2024-03-12"
-  }
-];
-
+import axios from 'axios';
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
 
 export default function Home() {
-  // Initialize with dummy data
-  const [candidates, setCandidates] = useState(dummyCandidates);
+  // Initialize candidates as an empty array, not undefined
+  const [candidates, setCandidates] = useState([]);
   const [filters, setFilters] = useState({
     search: '',
-    status: 'all'
+    status: 'all',
+    position: 'all'
   });
-  const [loading, setLoading] = useState(false); // Set to false since we have dummy data
+  const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
-  // Comment out or modify the useEffect to prevent API calls
-  // useEffect(() => {
-  //   fetchCandidates();
-  // }, []);
+  useEffect(() => {
+    fetchCandidates();
+  }, []);
 
   const fetchCandidates = async () => {
-    // For testing, just return dummy data
-    setCandidates(dummyCandidates);
+    try {
+      const response = await axios.get(`${API_URL}/candidates`);
+      console.log("repsonse: ",response);
+      console.log("data: ",response.data);
+      // Make sure we're setting an array, even if empty
+      setCandidates(response.data);
+    } catch (error) {
+      console.error('Error fetching candidates:', error);
+      // Set empty array on error to prevent undefined
+      setCandidates([]);
+      toast({
+        title: "Error",
+        description: "Failed to fetch candidates. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleAddCandidate = async (newCandidate) => {
     try {
-      // Simulate adding a new candidate locally
-      const newId = candidates.length + 1;
-      const candidateWithId = {
-        ...newCandidate,
-        id: newId,
-        appliedDate: new Date().toISOString().split('T')[0]
-      };
-      setCandidates([...candidates, candidateWithId]);
+      const response = await fetch(`${API_URL}/candidates`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(newCandidate),
+      });
+      
+      if (!response.ok) throw new Error('Failed to add candidate');
+      
+      await fetchCandidates();
       toast({
         title: "Success",
         description: "Candidate added successfully",
@@ -99,11 +74,21 @@ export default function Home() {
 
   const handleStatusChange = async (id, status) => {
     try {
-      // Update status locally
-      const updatedCandidates = candidates.map(candidate =>
-        candidate.id === id ? { ...candidate, status } : candidate
-      );
-      setCandidates(updatedCandidates);
+      // Updated URL to match backend route
+      const response = await fetch(`${API_URL}/candidates/${id}/status`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ status }),
+      });
+        
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to update status');
+      }
+        
+      await fetchCandidates();
       toast({
         title: "Success",
         description: "Status updated successfully",
@@ -112,7 +97,7 @@ export default function Home() {
       console.error('Error updating status:', error);
       toast({
         title: "Error",
-        description: "Failed to update status. Please try again.",
+        description: error.message || "Failed to update status. Please try again.",
         variant: "destructive",
       });
     }
@@ -122,9 +107,13 @@ export default function Home() {
     if (!window.confirm('Are you sure you want to delete this candidate?')) return;
 
     try {
-      // Delete locally
-      const filteredCandidates = candidates.filter(candidate => candidate.id !== id);
-      setCandidates(filteredCandidates);
+      const response = await fetch(`${API_URL}/candidates/${id}`, {
+        method: 'DELETE',
+      });
+      
+      if (!response.ok) throw new Error('Failed to delete candidate');
+      
+      await fetchCandidates();
       toast({
         title: "Success",
         description: "Candidate deleted successfully",
@@ -143,12 +132,17 @@ export default function Home() {
     setFilters(prev => ({ ...prev, [key]: value }));
   };
 
-  const filteredCandidates = candidates.filter(candidate => {
-    const matchesSearch = candidate.name.toLowerCase().includes(filters.search.toLowerCase()) ||
-                         candidate.email.toLowerCase().includes(filters.search.toLowerCase());
-    const matchesStatus = filters.status === 'all' || candidate.status.toLowerCase() === filters.status;
-    return matchesSearch && matchesStatus;
-  });
+  // Add null check before filtering
+  const filteredCandidates = candidates?.filter(candidate => {
+    if (!candidate) return false;  // Skip if candidate is undefined
+    
+    const matchesSearch = (candidate.name?.toLowerCase() || '').includes(filters.search.toLowerCase()) ||
+                         (candidate.email?.toLowerCase() || '').includes(filters.search.toLowerCase());
+    const matchesStatus = filters.status === 'all' || (candidate.status?.toLowerCase() || '') === filters.status;
+    const matchesPosition = 
+      filters.position === 'all' || (candidate.position?.toLowerCase() || '') === filters.position.toLowerCase();
+    return matchesSearch && matchesStatus && matchesPosition;
+  }) || [];
 
   if (loading) {
     return (

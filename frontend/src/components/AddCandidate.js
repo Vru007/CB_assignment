@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -9,19 +9,23 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useState } from 'react';
 
 const AddCandidateModal = ({ onAddCandidate }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-  });
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
+  const [position, setPosition] = useState('');
+  const [experience, setExperience] = useState('');
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onAddCandidate({ ...formData, status: 'pending' });
-    setFormData({ name: '', email: '' });
+    onAddCandidate({ name, email, phone, position, experience, status: 'pending' });
+    setName('');
+    setEmail('');
+    setPhone('');
+    setPosition('');
+    setExperience('');
     setIsOpen(false);
   };
 
@@ -39,8 +43,8 @@ const AddCandidateModal = ({ onAddCandidate }) => {
             <Label htmlFor="name">Name</Label>
             <Input
               id="name"
-              value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              value={name}
+              onChange={(e) => setName(e.target.value)}
               required
             />
           </div>
@@ -49,12 +53,44 @@ const AddCandidateModal = ({ onAddCandidate }) => {
             <Input
               id="email"
               type="email"
-              value={formData.email}
-              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               required
             />
           </div>
-          <Button type="submit" className="w-full">Add Candidate</Button>
+          <div className="space-y-2">
+            <Label htmlFor="phone">Phone Number</Label>
+            <Input
+              id="phone"
+              type="text"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              required
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="position">Position</Label>
+            <Input
+              id="position"
+              type="text"
+              value={position}
+              onChange={(e) => setPosition(e.target.value)}
+              required
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="experience">Experience (In years)</Label>
+            <Input
+              id="experience"
+              type="text"
+              value={experience}
+              onChange={(e) => setExperience(e.target.value)}
+              required
+            />
+          </div>
+          <Button type="submit" className="w-full">
+            Add Candidate
+          </Button>
         </form>
       </DialogContent>
     </Dialog>

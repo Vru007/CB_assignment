@@ -80,6 +80,24 @@ const CandidateTable = ({ candidates, onStatusChange, onDelete }) => {
               </TableHead>
               <TableHead 
                 className="cursor-pointer"
+                onClick={() => requestSort('position')}
+              >
+                Position {sortConfig.key === 'position' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+              </TableHead>
+              <TableHead 
+                className="cursor-pointer"
+                onClick={() => requestSort('experience')}
+              >
+                Experince (In Years) {sortConfig.key === 'experience' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+              </TableHead>
+              <TableHead 
+                className="cursor-pointer"
+                onClick={() => requestSort('appliedDate')}
+              >
+                Applied At {sortConfig.key === 'appliedDate' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+              </TableHead>
+              <TableHead 
+                className="cursor-pointer"
                 onClick={() => requestSort('status')}
               >
                 Status {sortConfig.key === 'status' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
@@ -92,6 +110,9 @@ const CandidateTable = ({ candidates, onStatusChange, onDelete }) => {
               <TableRow key={candidate.id}>
                 <TableCell>{candidate.name}</TableCell>
                 <TableCell>{candidate.email}</TableCell>
+                <TableCell>{candidate.position}</TableCell>
+                <TableCell>{candidate.experience}</TableCell>
+                <TableCell>{candidate.appliedDate}</TableCell>
                 <TableCell>
                   <button
                     onClick={() => handleStatusClick(candidate)}

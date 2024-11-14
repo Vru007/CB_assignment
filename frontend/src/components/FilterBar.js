@@ -3,7 +3,8 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const FilterBar = ({ filters, onFilterChange }) => {
-  const statusOptions = ['All', 'Pending', 'In Progress', 'Completed','Interviewed'];
+  const statusOptions = ['All', 'Pending', 'In Progress', 'Completed', 'Interviewed'];
+  const positionOptions = ['All', 'Frontend Developer', 'Backend Developer', 'UX Designer', 'Product Manager'];
 
   return (
     <div className="flex flex-col sm:flex-row gap-4 mb-6">
@@ -27,6 +28,23 @@ const FilterBar = ({ filters, onFilterChange }) => {
             {statusOptions.map((status) => (
               <SelectItem key={status} value={status.toLowerCase()}>
                 {status}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+      <div className="w-[200px]">
+        <Select
+          value={filters.position}
+          onValueChange={(value) => onFilterChange('position', value)}
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="Filter by position" />
+          </SelectTrigger>
+          <SelectContent>
+            {positionOptions.map((position) => (
+              <SelectItem key={position} value={position.toLowerCase()}>
+                {position}
               </SelectItem>
             ))}
           </SelectContent>

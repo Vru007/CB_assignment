@@ -25,7 +25,7 @@ const StatusUpdateDialog = ({
   candidateName 
 }) => {
   const [selectedStatus, setSelectedStatus] = React.useState(currentStatus);
-  const statusOptions = ['Pending', 'In Progress', 'Completed'];
+  const statusOptions = ['pending','interviewed','accepted','rejected'];
 
   const handleSubmit = (e) => {
     e.preventDefault();
