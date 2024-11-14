@@ -1,101 +1,181 @@
-import Image from "next/image";
+'use client';
+
+import { useState, useEffect } from 'react';
+import CandidateTable from '@/components/CandidateTable';
+import FilterBar from '@/components/FilterBar';
+import AddCandidateModal from '@/components/AddCandidate';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useToast } from "@/hooks/use-toast"
+
+// Dummy data
+const dummyCandidates = [
+  {
+    id: 1,
+    name: "John Smith",
+    email: "john.smith@example.com",
+    phone: "+1 (555) 123-4567",
+    status: "pending",
+    position: "Frontend Developer",
+    experience: "5 years",
+    appliedDate: "2024-03-15"
+  },
+  {
+    id: 2,
+    name: "Sarah Johnson",
+    email: "sarah.j@example.com",
+    phone: "+1 (555) 234-5678",
+    status: "interviewed",
+    position: "UX Designer",
+    experience: "3 years",
+    appliedDate: "2024-03-14"
+  },
+  {
+    id: 3,
+    name: "Michael Chen",
+    email: "m.chen@example.com",
+    phone: "+1 (555) 345-6789",
+    status: "accepted",
+    position: "Backend Developer",
+    experience: "7 years",
+    appliedDate: "2024-03-13"
+  },
+  {
+    id: 4,
+    name: "Emma Wilson",
+    email: "emma.w@example.com",
+    phone: "+1 (555) 456-7890",
+    status: "rejected",
+    position: "Product Manager",
+    experience: "4 years",
+    appliedDate: "2024-03-12"
+  }
+];
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.js
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  // Initialize with dummy data
+  const [candidates, setCandidates] = useState(dummyCandidates);
+  const [filters, setFilters] = useState({
+    search: '',
+    status: 'all'
+  });
+  const [loading, setLoading] = useState(false); // Set to false since we have dummy data
+  const { toast } = useToast();
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
+  // Comment out or modify the useEffect to prevent API calls
+  // useEffect(() => {
+  //   fetchCandidates();
+  // }, []);
+
+  const fetchCandidates = async () => {
+    // For testing, just return dummy data
+    setCandidates(dummyCandidates);
+  };
+
+  const handleAddCandidate = async (newCandidate) => {
+    try {
+      // Simulate adding a new candidate locally
+      const newId = candidates.length + 1;
+      const candidateWithId = {
+        ...newCandidate,
+        id: newId,
+        appliedDate: new Date().toISOString().split('T')[0]
+      };
+      setCandidates([...candidates, candidateWithId]);
+      toast({
+        title: "Success",
+        description: "Candidate added successfully",
+      });
+    } catch (error) {
+      console.error('Error adding candidate:', error);
+      toast({
+        title: "Error",
+        description: "Failed to add candidate. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleStatusChange = async (id, status) => {
+    try {
+      // Update status locally
+      const updatedCandidates = candidates.map(candidate =>
+        candidate.id === id ? { ...candidate, status } : candidate
+      );
+      setCandidates(updatedCandidates);
+      toast({
+        title: "Success",
+        description: "Status updated successfully",
+      });
+    } catch (error) {
+      console.error('Error updating status:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update status. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleDelete = async (id) => {
+    if (!window.confirm('Are you sure you want to delete this candidate?')) return;
+
+    try {
+      // Delete locally
+      const filteredCandidates = candidates.filter(candidate => candidate.id !== id);
+      setCandidates(filteredCandidates);
+      toast({
+        title: "Success",
+        description: "Candidate deleted successfully",
+      });
+    } catch (error) {
+      console.error('Error deleting candidate:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete candidate. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleFilterChange = (key, value) => {
+    setFilters(prev => ({ ...prev, [key]: value }));
+  };
+
+  const filteredCandidates = candidates.filter(candidate => {
+    const matchesSearch = candidate.name.toLowerCase().includes(filters.search.toLowerCase()) ||
+                         candidate.email.toLowerCase().includes(filters.search.toLowerCase());
+    const matchesStatus = filters.status === 'all' || candidate.status.toLowerCase() === filters.status;
+    return matchesSearch && matchesStatus;
+  });
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="container mx-auto py-6">
+      <Card>
+        <CardHeader>
+          <CardTitle>Candidates Assessment Dashboard</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-6">
+            <AddCandidateModal onAddCandidate={handleAddCandidate} />
+            <FilterBar filters={filters} onFilterChange={handleFilterChange} />
+            <CandidateTable
+              candidates={filteredCandidates}
+              onStatusChange={handleStatusChange}
+              onDelete={handleDelete}
             />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }
